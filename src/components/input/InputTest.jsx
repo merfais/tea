@@ -1,9 +1,9 @@
+import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import React from 'utils/ObComponent.js'
 import _ from 'lodash'
 
-export default class Input extends React.ObComponent {
+export default class Input extends React.PureComponent {
   static defaultProps = {
     prefixCls: 'tea-input',
     disabled: false,
@@ -23,6 +23,7 @@ export default class Input extends React.ObComponent {
   state = {
     value: ''
   }
+  _stateHasChanged = false
 
   constructor(props) {
     super(props)
@@ -34,79 +35,14 @@ export default class Input extends React.ObComponent {
     if (this.state.value === null || this.state.value === undefined) {
       this.state.value = ''
     }
-    this.watch({
-      'props.prefix': () => {
-        const { prefix, prefixCls } = this.props
-        if (prefix !== null && prefix !== undefined) {
-          this.prefixNode = (
-            <span className={`${prefixCls}-prefix`}>
-              {prefix}
-            </span>
-          )
-        } else {
-          this.prefixNode = null
-        }
-      },
-      'props.suffix': () => {
-        const { suffix, prefixCls } = this.props
-        if (suffix !== null && suffix !== undefined) {
-          this.suffixNode = (
-            <span className={`${prefixCls}-suffix`}>
-              {suffix}
-            </span>
-          )
-        } else {
-          this.suffixNode = null
-        }
-      },
-      'props.addonBefore': () => {
-        const { addonBefore, prefixCls } = this.props
-        const addonClassName = `${prefixCls}-group-addon`
-        if (addonBefore !== null && addonBefore !== undefined) {
-          this.addonBeforeNode = (
-            <span className={addonClassName}>
-              {addonBefore}
-            </span>
-          )
-        } else {
-          this.addonBeforeNode = null
-        }
-      },
-      'props.addonAfter': () => {
-        const { addonAfter, prefixCls } = this.props
-        const addonClassName = `${prefixCls}-group-addon`
-        if (addonAfter !== null && addonAfter !== undefined) {
-          this.addonAfterNode = (
-            <span className={addonClassName}>
-              {addonAfter}
-            </span>
-          )
-        } else {
-          this.addonAfterNode = null
-        }
-      },
-      'props.type': () => {
-        // reset type
-        this.inputType = this.props.type
-        if (this.inputType === 'button'
-          || this.inputType === 'checkbox'
-          || this.inputType === 'radio'
-          || this.inputType === 'range'
-          || this.inputType === 'submit'
-          || this.inputType === 'reset'
-        ) {
-          this.inputType = 'text'
-        }
-      }
-    })
   }
 
   componentDidMount() {
-    this.test(10000, 530)
+    this.test(10000, 770)
   }
 
-  test(count=5000, q= 22) {
-    window.aa = []
+  test(count=5000, q = 20) {
+    window.bb = []
     let i = count * q
     while (i > 0) {
       setTimeout(() => {
@@ -119,6 +55,7 @@ export default class Input extends React.ObComponent {
       i -= q
     }
   }
+
   focus() {
     this.$input.focus()
   }
@@ -138,6 +75,7 @@ export default class Input extends React.ObComponent {
   handleChange = e => {
     const value = _.get(e, 'target.value')
     this.setState({ value })
+    this._stateHasChanged = true
     if (_.isFunction(this.props.onChange)) {
       this.props.onChange(value, e)
     }
@@ -173,10 +111,35 @@ export default class Input extends React.ObComponent {
   }
 
   withAddon(affixNode) {
+    const {
+      prefixCls,
+      addonBefore,
+      addonAfter,
+      className,
+      style,
+    } = this.props
+    const addonClassName = `${prefixCls}-group-addon`
+    if (addonBefore !== null && addonBefore !== undefined) {
+      this.addonBeforeNode = (
+        <span className={addonClassName}>
+          {addonBefore}
+        </span>
+      )
+    } else {
+      this.addonBeforeNode = null
+    }
+    if (addonAfter !== null && addonAfter !== undefined) {
+      this.addonAfterNode = (
+        <span className={addonClassName}>
+          {addonAfter}
+        </span>
+      )
+    } else {
+      this.addonAfterNode = null
+    }
     if (!this.addonBeforeNode && !this.addonAfterNode) {
       return affixNode
     }
-    const { prefixCls, className, style } = this.props
     const groupCls = classNames(
       `${prefixCls}-group-wrapper`,
       className,
@@ -204,6 +167,25 @@ export default class Input extends React.ObComponent {
   }
 
   withAffix(inputNode) {
+    const { prefixCls, prefix, suffix } = this.props
+    if (prefix !== null && prefix !== undefined) {
+      this.prefixNode = (
+        <span className={`${prefixCls}-prefix`}>
+          {prefix}
+        </span>
+      )
+    } else {
+      this.prefixNode = null
+    }
+    if (suffix !== null && suffix !== undefined) {
+      this.suffixNode = (
+        <span className={`${prefixCls}-suffix`}>
+          {suffix}
+        </span>
+      )
+    } else {
+      this.suffixNode = null
+    }
     if (!this.prefixNode && !this.suffixNode) {
       return inputNode
     }
@@ -225,7 +207,7 @@ export default class Input extends React.ObComponent {
   }
 
   render() {
-    const _stateHasChanged = this._stateHasChanged
+    let _stateHasChanged = this._stateHasChanged
     const start = performance.now()
     const inputProps = _.omit(this.props, [
       'value',
@@ -242,6 +224,23 @@ export default class Input extends React.ObComponent {
       'suffix',
     ])
     const inputClassName = this.getInputCls(true)
+    this.inputType = this.props.type
+    if (this.inputType === 'button'
+      || this.inputType === 'checkbox'
+      || this.inputType === 'radio'
+      || this.inputType === 'range'
+      || this.inputType === 'submit'
+      || this.inputType === 'reset'
+    ) {
+      this.inputType = 'text'
+    }
+    if (!this._stateHasChanged) {
+      if (_.has(this.state, 'value') && _.has(this.props, 'value')) {
+        this.state.value = this.props.value
+      }
+    } else {
+      this._stateHasChanged = false
+    }
     const node = this.withAddon(this.withAffix(
       <input ref={this.setRef}
         className={inputClassName}
@@ -253,11 +252,11 @@ export default class Input extends React.ObComponent {
       />
     ))
     const end = performance.now()
-    const t = end -start
+    const t = end - start
     if (this._caseByInner) {
-      window.aa.push(t)
+      window.bb.push(t)
     } else {
-      window.a.push(t)
+      window.b.push(t)
     }
     this._caseByInner = false
     return node
