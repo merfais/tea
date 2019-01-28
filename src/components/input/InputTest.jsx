@@ -38,19 +38,24 @@ export default class Input extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.test(10000, 770)
+    // this.test(10)
   }
 
   test(count=5000, q = 20) {
     window.bb = []
+    this._count = 0
     let i = count * q
     while (i > 0) {
       setTimeout(() => {
         this._caseByInner = true
         this._stateHasChanged = true
         this.setState({
-          value: Math.random()
+          value: Math.random() * 1000
         })
+        this._count += 1
+        if (this._count >= count) {
+          this.props.over()
+        }
       }, i + 100)
       i -= q
     }
@@ -207,8 +212,13 @@ export default class Input extends React.PureComponent {
   }
 
   render() {
-    let _stateHasChanged = this._stateHasChanged
+    // console.time('input_test_render')
     const start = performance.now()
+    // console.log('input_test_render', start)
+    if (this.props.start && this.start !== true) {
+      this.start = true
+      this.test(10000, 879)
+    }
     const inputProps = _.omit(this.props, [
       'value',
       'defaultValue',
@@ -222,6 +232,8 @@ export default class Input extends React.PureComponent {
       'addonAfter',
       'prefix',
       'suffix',
+      'start',
+      'over',
     ])
     const inputClassName = this.getInputCls(true)
     this.inputType = this.props.type
@@ -252,6 +264,8 @@ export default class Input extends React.PureComponent {
       />
     ))
     const end = performance.now()
+    // console.log('input_test_render', end)
+    // console.timeEnd('input_test_render')
     const t = end - start
     if (this._caseByInner) {
       window.bb.push(t)

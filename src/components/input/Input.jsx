@@ -24,6 +24,8 @@ export default class Input extends React.ObComponent {
     value: ''
   }
 
+  start = false
+
   constructor(props) {
     super(props)
     if (_.has(props, 'defaultValue')) {
@@ -85,7 +87,7 @@ export default class Input extends React.ObComponent {
           this.addonAfterNode = null
         }
       },
-      'props.type': () => {
+      'props.type': (preProps) => {
         // reset type
         this.inputType = this.props.type
         if (this.inputType === 'button'
@@ -97,16 +99,17 @@ export default class Input extends React.ObComponent {
         ) {
           this.inputType = 'text'
         }
-      }
+      },
     })
   }
 
   componentDidMount() {
-    this.test(10000, 530)
+    // this.test(10)
   }
 
   test(count=5000, q= 22) {
     window.aa = []
+    this._count = 0
     let i = count * q
     while (i > 0) {
       setTimeout(() => {
@@ -115,6 +118,10 @@ export default class Input extends React.ObComponent {
         this.setState({
           value: Math.random()
         })
+        this._count += 1
+        if (this._count >= count) {
+          this.props.over()
+        }
       }, i + 100)
       i -= q
     }
@@ -225,8 +232,13 @@ export default class Input extends React.ObComponent {
   }
 
   render() {
-    const _stateHasChanged = this._stateHasChanged
+    // console.time('input_render')
     const start = performance.now()
+    // console.log('input_render', start)
+    if (this.props.start && this.start !== true) {
+      this.start = true
+      this.test(10000, 677)
+    }
     const inputProps = _.omit(this.props, [
       'value',
       'defaultValue',
@@ -240,6 +252,8 @@ export default class Input extends React.ObComponent {
       'addonAfter',
       'prefix',
       'suffix',
+      'start',
+      'over',
     ])
     const inputClassName = this.getInputCls(true)
     const node = this.withAddon(this.withAffix(
@@ -253,6 +267,8 @@ export default class Input extends React.ObComponent {
       />
     ))
     const end = performance.now()
+    // console.log('input_render', end)
+    // console.timeEnd('input_render')
     const t = end -start
     if (this._caseByInner) {
       window.aa.push(t)

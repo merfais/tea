@@ -16,8 +16,14 @@ window.bb = []
 class App extends Component {
 
   state = {
-    value: 2
+    inputValue: '',
+    inputTestValue: '',
+    inputStart: false,
+    InputTestStart: false,
+    any: '',
   }
+
+  style = {border: '1px', color: '#f00'}
 
   handleChange = e => {
     this.state.value = e
@@ -29,6 +35,12 @@ class App extends Component {
     this.setState({
       value: Math.random()
       // value: 1,
+    })
+  }
+
+  handleClick2 = () => {
+    this.setState({
+      any: Math.random()
     })
   }
 
@@ -71,71 +83,117 @@ class App extends Component {
     console.log('---------------------------------------------')
   }
   handleAuto =() => {
-    this.test()
+    // this.testInput()
   }
 
-  test = (count =5000, q=23) => {
+  testInput = (count =5000, q=23) => {
     window.a = []
-    window.b = []
+    this._inputCount = 0
     let i = count * q
     while (i > 0) {
       setTimeout(() => {
         this.setState({
-          value: Math.random()
-          // value: 1,
+          inputValue: Math.random() * 10000
         })
+        this._inputCount += 1
+        if (this._inputCount >= count) {
+          console.log('testInput over========================================')
+          this.testInputTest(10000, 1011)
+        }
       }, i + 1000)
       i -= q
     }
   }
 
-  componentDidMount() {
-    this.test(10000, 600)
+  testInputTest = (count =5000, q=23) => {
+    window.b = []
+    this._inputTestCount = 0
+    let i = count * q
+    while (i > 0) {
+      setTimeout(() => {
+        this.setState({
+          inputTestValue: Math.random() * 10000
+        })
+        this._inputTestCount += 1
+        if (this._inputTestCount >= count) {
+          console.log('testInputTest over=================================')
+        }
+      }, i + 1000)
+      i -= q
+    }
   }
 
+  inputOver = () =>{
+    console.log('input over======================================')
+    this.setState({
+      InputTestStart: true,
+    })
+  }
+  inputTestOver = () => {
+    console.log('InputTest over=======================================')
+    this.testInput(10000, 937)
+  }
+
+  componentDidMount() {
+    this.setState({
+      inputStart: true
+    })
+  }
+
+  prefix = <i className='prefix'/>
+  suffix = 'suffix'
+  addonBefore = <button>addonBefore</button>
+  addonAfter = <button>addonAfter</button>
   render() {
-    const prefix = <i className='prefix'/>
-    const suffix = 'suffix'
-    const addonBefore = <button>addonBefore</button>
-    const addonAfter = <button>addonAfter</button>
+    // console.time('app_render')
+    const start = performance.now()
+    // console.log('app_render', start)
     const node = (
       <div className="App">
         <p>
-          <Input value={this.state.value}
+          <Input value={this.state.inputValue}
             data-ss='xxxx'
-            style={{border: '1px', color: '#f00'}}
+            style={this.style}
             className='ssss'
-            addonBefore={addonBefore}
-            addonAfter={addonAfter}
-            prefix={prefix}
-            suffix={suffix}
+            addonBefore={this.addonBefore}
+            addonAfter={this.addonAfter}
+            prefix={this.prefix}
+            suffix={this.suffix}
+            over={this.inputOver}
+            start={this.state.inputStart}
             onChange={this.handleChange}/>
           <button onClick={this.handleClick}>tttt</button>
         </p>
         <p>
-          <InputTest value={this.state.value}
+          <InputTest value={this.state.inputTestValue}
             data-ss='xxxx'
-            style={{border: '1px', color: '#f00'}}
+            style={this.style}
             className='ssss'
-            addonBefore={addonBefore}
-            addonAfter={addonAfter}
-            prefix={prefix}
-            suffix={suffix}
+            addonBefore={this.addonBefore}
+            addonAfter={this.addonAfter}
+            prefix={this.prefix}
+            suffix={this.suffix}
+            over={this.inputTestOver}
+            start={this.state.InputTestStart}
             onChange={this.handleChange}/>
           <button onClick={this.handleClick}>tttt</button>
         </p>
         <p>
-          <Textarea value={this.state.value}
+          <Textarea value={this.state.any}
             data-ss='xxxx'
-            style={{border: '1px', color: '#f00'}}
+            style={this.style}
             className='ssss'
             onChange={this.handleChange}/>
-          <button onClick={this.handleClick}>tttt</button>
+          <button onClick={this.handleClick2}>tttt</button>
         </p>
         <button onClick={this.handleAuto}>自动测试</button>
         <button onClick={this.log}>打印</button>
       </div>
     )
+    const end = performance.now()
+    const t = end - start
+    // console.log('app_render', end)
+    // console.timeEnd('app_render')
     return node
   }
 }
